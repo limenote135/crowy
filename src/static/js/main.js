@@ -2792,17 +2792,19 @@ var twitter = {
 	canUploadImage: true,
 	countMessage: function(message, uploader){
 		var messageLength = message.replace(/\s+$/g, "").length;
+	    var reHttps = new RegExp("^https://", 'g');
 		var re = new RegExp("(http[s]?://[\\w|/|\.|%|&|\?|=|\\-|#|!|:|;|~]+)", 'g'),
 			match = message.match(re);
 		if(match){
 			$.each(match, function(){
-				if(this.length > 20){
-					messageLength += 20 - this.length;//t.coは20文字に短縮される
-				}
+			    messageLength += 22 - this.length;//t.coは22文字に短縮される
+			    if (this.match(reHttps)) {
+				messageLength += 1; // httpsは23文字
+			    }
 			});
 		}
 		if(uploader.uploader('keys').length > 0){
-			messageLength += 21;//スペース＋URLになる
+			messageLength += 23;//スペース＋URLになる
 		}
 		var charCount = twitter.messageLimit - messageLength;
 		return charCount;
