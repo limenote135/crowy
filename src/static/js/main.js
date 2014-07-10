@@ -3168,7 +3168,7 @@ var twitter = {
 			$.each(entry.entities, function(key, entities){
 				sortedEntities = sortedEntities.concat(entities);
 			});
-			sortedEntities.sort(function(a, b){return a.indices[0] > b.indices[0];});
+			sortedEntities.sort(function(a, b){return a.indices[0] - b.indices[0];});
 			var text = entry.text, lastIndex = 0;
 			$.each(sortedEntities, function(){
 				if(this.indices[0] > 0)
