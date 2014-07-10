@@ -336,7 +336,19 @@ THUMBNAIL_RESOLVER = [
                     // TweetPhoto, Plixi, Lockerz
                     [/(http:\/\/tweetphoto[.]com\/\d+|http:\/\/plixi[.]com\/p\/\d+|http:\/\/lockerz[.]com\/s\/\d+)/,'<img src="http://api.plixi.com/api/TPAPI.svc/imagefromurl?size=mobile&url=$1" height="180" />'],
                     // Ow.ly
-                    [/http:\/\/ow[.]ly\/i\/(\w+)/,'<img src="http://static.ow.ly/photos/thumb/$1.jpg" width="100" height="100" />']
+                    [/http:\/\/ow[.]ly\/i\/(\w+)/,'<img src="http://static.ow.ly/photos/thumb/$1.jpg" width="100" height="100" />'],
+                    // Panoramio
+                    [/(http:\/\/www|https:\/\/ssl)[.]panoramio[.]com\/(photo|m\/photo)\/(\d+)(\?.*)?/,'<img src="https://mw2.google.com/mw-panoramio/photos/small/$3.jpg" />'],
+                    // Twipple
+                    [/http:\/\/p[.]twipple[.]jp\/(\w+)/,'<img src="http://p.twpl.jp/show/thumb/$1" />'],
+                    // niconico/静画/コミュニティ
+                    [/http:\/\/(nico[.]ms|www[.]nicovideo[.]jp\/watch)\/[sn]m((\d*[02468])?[048]|\d*[13579][26])$/, '<img src="http://tn-skr1.smilevideo.jp/smile?i=$2" />'],
+                    [/http:\/\/(nico[.]ms|www[.]nicovideo[.]jp\/watch)\/[sn]m((\d*[02468])?[159]|\d*[13579][37])$/, '<img src="http://tn-skr2.smilevideo.jp/smile?i=$2" />'],
+                    [/http:\/\/(nico[.]ms|www[.]nicovideo[.]jp\/watch)\/[sn]m((\d*[02468])?[26]|\d*[13579][048])$/, '<img src="http://tn-skr3.smilevideo.jp/smile?i=$2" />'],
+                    [/http:\/\/(nico[.]ms|www[.]nicovideo[.]jp\/watch)\/[sn]m((\d*[02468])?[37]|\d*[13579][159])$/, '<img src="http://tn-skr4.smilevideo.jp/smile?i=$2" />'],
+                    [/http:\/\/nico[.]ms\/l\/co((\d+)\d{4})$/, '<img src="http://icon.nimg.jp/community/$2/co$1.jpg" />'],
+                    [/http:\/\/nico[.]ms\/l\/co(\d{1,4})$/, '<img src="http://icon.nimg.jp/community/0/co$1.jpg" />'],
+                    [/http:\/\/nico[.]ms\/im(\d+)$/, '<img src="http://lohas.nicoseiga.jp/thumb/$1q" />']
                     ];
 function getImageThumb(url, callback){
 	var thumbUrl = "";
