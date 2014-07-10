@@ -3576,7 +3576,7 @@ var twitter = {
 				function loadReply(id){
 					$.get("twitter/status/"+columnInfo.account_name+"/?id="+id,
 						function(entry){
-							var messageElm = twitter.renderMessage(entry, columnInfo, null, null, {is_conversation:true}).insertAfter(loading);
+							var messageElm = twitter.renderMessage(entry, columnInfo, null, null, {is_conversation:true}).insertBefore(loading);
 							if(entry.in_reply_to_status_id){
 								loadReply(entry.in_reply_to_status_id);
 							}else{
@@ -3594,7 +3594,7 @@ var twitter = {
 						loadReply(id);
 					}else{
 						if(entry.in_reply_to_status_id){
-							twitter.renderMessage(entry, columnInfo, null, null, {is_conversation:true}).insertAfter(loading);
+							twitter.renderMessage(entry, columnInfo, null, null, {is_conversation:true}).insertBefore(loading);
 							loadReply(entry.in_reply_to_status_id);
 						}else{
 							loadReply(entry.id);
