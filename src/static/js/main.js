@@ -3176,7 +3176,7 @@ var twitter = {
 				if(this.screen_name)
 					displayText += '<a href="http://twitter.com/'+this.screen_name+'" target="_blank" class="open-profile" screen_name="'+this.screen_name+'">@'+this.screen_name+'</a>';
 				if(this.text)
-					displayText += '<a href="http://twitter.com/#!/search/%23'+encodeURIComponent(this.text)+'" target="_blank">#'+this.text+'</a>';
+					displayText += '<a href="http://twitter.com/#!/search/%23'+encodeURIComponent(this.text)+'" target="_blank" class="search-link">#'+this.text+'</a>';
 				if(this.url) {
 					displayText += '<a href="'+this.url+'" target="_blank">'+(this.display_url || this.url)+'</a>';
 					getImageThumb((this.expanded_url || this.url), function(thumbData){
@@ -3231,6 +3231,108 @@ var twitter = {
 				var _user = user;
 				if(screen_name) _user = {screen_name:screen_name};
 				twitter.openProfile(_user, columnInfo, event);
+			});
+
+		$('.search-link', messageElm)
+			.click(function(event){
+			    // ハッシュタグリンククリック時の処理
+			    //alert($(this).text());
+
+		event.preventDefault();
+		var keyword = $(this).text();
+		if(!$.trim(keyword)) return false;
+		var loading = $('<p class="loading"/>').text("Loading...");
+		var popup = $('<div class="twitter"/>').append(loading).appendTo(document.body);
+		var type = "search/"+keyword;
+		var account_name = "";
+		var twitterAccounts = twitter.getOtherAccount();
+		if(twitterAccounts.length == 0){
+			alert($I.R103);
+			return;
+		} else {
+			account_name = twitterAccounts[0].account_name;
+		}
+		var columnInfo = {
+			"name": keyword+"/Search",
+			"service": "twitter",
+			account_name: account_name,
+			"account_label": "Search",
+			type:type
+		};
+		popup.dialog({
+			title: $I.R071 + " / " + keyword,
+			height: 400,
+			width:400,
+			dialogClass: "thread",
+			open: function(){
+				$.get("twitter/messages/"+account_name+"?type=" + encodeURIComponent(type),
+					function(data){
+						loading.remove();
+						$.each(data.messages, function(idx, entry){
+							twitter.renderMessage(entry, columnInfo).appendTo(popup);
+						});
+					}
+				);
+			},
+			close: function(event, ui){
+				popup.remove();
+			},
+			buttons: [
+				{
+					text:$I.R027,
+					click: function(){
+						if(twitterAccounts.length == 0){
+							alert($I.R103);
+						}else if(twitterAccounts.length == 1){
+							columnInfo.account_name = twitterAccounts[0].account_name;
+							columnInfo.account_label = twitterAccounts[0].account_name;
+							addColumn(columnInfo, function(){
+								popup.dialog("close");
+							});
+						}else{
+							var accountImg = $('<img/>'),
+								accountsSelect = $('<select/>'),
+								accountsPopup = $('<div class="tw-select-accounts"/>').append(
+									$('<div class="label"/>').text($I.R104),
+									$('<div class="tw-accounts-pulldown"/>').append(
+										accountImg,
+										accountsSelect
+									)
+								);
+							$.each(twitterAccounts, function(){
+								$('<option/>')
+									.text(this.account_name).val(this.account_name).data('account', this)
+									.appendTo(accountsSelect);
+							});
+							accountImg.attr('src', twitterAccounts[0].profile_image_url);
+							accountsSelect.change(function(){
+								var _account = $('option:selected', accountsSelect).data('account');
+								accountImg.attr('src', _account.profile_image_url);
+							});
+							accountsPopup.dialog({
+								modal:true,
+								buttons:[
+									{
+										text:$I.R027,
+										click:function(){
+											var selectedAccount = $('option:selected', accountsSelect).val();
+											columnInfo.account_name = selectedAccount;
+											columnInfo.account_label = selectedAccount;
+											addColumn(columnInfo, function(){
+												accountsPopup.dialog('close');
+												popup.dialog("close");
+											});
+										}
+									}
+								]
+							})
+						}
+					}
+				}
+			]
+		});
+
+			    return false;
 			});
 		
 		function sendDM(){
