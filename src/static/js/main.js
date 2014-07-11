@@ -296,7 +296,7 @@ function callOnlyInitial(options){
 }
 THUMBNAIL_RESOLVER = [
                     // twitpic
-                    [/http:\/\/twitpic[.]com\/(\w+)/,'<img src="http://twitpic.com/show/thumb/$1" width="150" height="150" />'],
+                    [/http:\/\/twitpic\.com\/(\w+)/,'<img src="http://twitpic.com/show/thumb/$1" width="150" height="150" />'],
                     // Amazon
                     [/http:\/\/www\.amazon\.co\.jp\/.*\/([0-9A-Z]{10,13})[\?\/]?.*/,'<img src="http://ws.assoc-amazon.jp/widgets/q?_encoding=UTF8&Format=_SL110_&ASIN=$1&MarketPlace=JP&ID=AsinImage&WS=1&ServiceVersion=20070822" />'],
                     // Amazon
@@ -308,47 +308,47 @@ THUMBNAIL_RESOLVER = [
                       }
                      ],
                     // youtube
-                    [/http:\/\/(?:www[.]youtube[.]com\/watch(?:\?|#!)v=|youtu[.]be\/)([\w\-]+)(?:[-_.!~*\'()a-zA-Z0-9;\/?:@&=+$,%#]*)/,'<img src="http://i.ytimg.com/vi/$1/hqdefault.jpg" width="240" height="180" />'],
+                    [/http:\/\/(?:www\.youtube\.com\/watch(?:\?|#!)v=|youtu\.be\/)([\w\-]+)(?:[-_.!~*\'()a-zA-Z0-9;\/?:@&=+$,%#]*)/,'<img src="http://i.ytimg.com/vi/$1/hqdefault.jpg" width="240" height="180" />'],
                     // yFrog
-                    [/http:\/\/yfrog[.]com\/(\w+)/,'<img src="http://yfrog.com/$1.th.jpg" />'],
+                    [/http:\/\/yfrog\.com\/(\w+)/,'<img src="http://yfrog.com/$1.th.jpg" />'],
                    // Instagram
-                    [/http:\/\/instagr[.]am\/p\/([\w\-]+)\//,'<img src="http://instagr.am/p/$1/media/?size=t" width="150" height="150" />'],
+                    [/http:\/\/instagr\.am\/p\/([\w\-]+)\//,'<img src="http://instagr.am/p/$1/media/?size=t" width="150" height="150" />'],
                      // Mobypicture
-                    [/http:\/\/moby[.]to\/(\w+)/,'<img src="http://moby.to/$1:small" width="150" />'],
+                    [/http:\/\/moby\.to\/(\w+)/,'<img src="http://moby.to/$1:small" width="150" />'],
                     // 携帯百景
-                    [/http:\/\/movapic[.]com\/pic\/(\w+)/,'<img src="http://image.movapic.com/pic/s_$1.jpeg" />'],
+                    [/http:\/\/movapic\.com\/pic\/(\w+)/,'<img src="http://image.movapic.com/pic/s_$1.jpeg" />'],
                     // はてなフォトライフ
-                    [/http:\/\/f[.]hatena[.]ne[.]jp\/(([\w\-])[\w\-]+)\/((\d{8})\d+)/,'<img src="http://img.f.hatena.ne.jp/images/fotolife/$2/$1/$4/$3_120.jpg" />'],
+                    [/http:\/\/f\.hatena\.ne\.jp\/(([\w\-])[\w\-]+)\/((\d{8})\d+)/,'<img src="http://img.f.hatena.ne.jp/images/fotolife/$2/$1/$4/$3_120.jpg" />'],
                     // PhotoShare
-                    [/http:\/\/(?:www[.])?bcphotoshare[.]com\/photos\/\d+\/(\d+)/,'<img src="http://images.bcphotoshare.com/storages/$1/thumb180.jpg" width="180" height="180" />'],
+                    [/http:\/\/(?:www\.)?bcphotoshare\.com\/photos\/\d+\/(\d+)/,'<img src="http://images.bcphotoshare.com/storages/$1/thumb180.jpg" width="180" height="180" />'],
                     // PhotoShare の短縮 URL
-                    [/http:\/\/bctiny[.]com\/p(\w+)/, '\'<img src="http://images.bcphotoshare.com/storages/\' . base_convert("$1", 36, 10) . \'/thumb180.jpg" width="180" height="180" />\''],
+                    [/http:\/\/bctiny\.com\/p(\w+)/, '\'<img src="http://images.bcphotoshare.com/storages/\' . base_convert("$1", 36, 10) . \'/thumb180.jpg" width="180" height="180" />\''],
                     // img.ly
-                    [/http:\/\/img[.]ly\/(\w+)/,'<img src="http://img.ly/show/thumb/$1" width="150" height="150" />'],
+                    [/http:\/\/img\.ly\/(\w+)/,'<img src="http://img.ly/show/thumb/$1" width="150" height="150" />'],
                     // brightkite
-                    [/http:\/\/brightkite[.]com\/objects\/((\w{2})(\w{2})\w+)/,'<img src="http://cdn.brightkite.com/$2/$3/$1-feed.jpg" />'],
+                    [/http:\/\/brightkite\.com\/objects\/((\w{2})(\w{2})\w+)/,'<img src="http://cdn.brightkite.com/$2/$3/$1-feed.jpg" />'],
                     // Twitgoo
-                    [/http:\/\/twitgoo[.]com\/(\w+)/,'<img src="http://twitgoo.com/$1/mini" />'],
+                    [/http:\/\/twitgoo\.com\/(\w+)/,'<img src="http://twitgoo.com/$1/mini" />'],
                     // pic.im
-                    [/http:\/\/pic[.]im\/(\w+)/,'<img src="http://pic.im/website/thumbnail/$1" />'],
+                    [/http:\/\/pic\.im\/(\w+)/,'<img src="http://pic.im/website/thumbnail/$1" />'],
                     // imgur
-                    [/http:\/\/imgur[.]com\/(\w+)[.]jpg/,'<img src="http://i.imgur.com/$1m.jpg" />'],
+                    [/http:\/\/imgur\.com\/(\w+)\.jpg/,'<img src="http://i.imgur.com/$1m.jpg" />'],
                     // TweetPhoto, Plixi, Lockerz
-                    [/(http:\/\/tweetphoto[.]com\/\d+|http:\/\/plixi[.]com\/p\/\d+|http:\/\/lockerz[.]com\/s\/\d+)/,'<img src="http://api.plixi.com/api/TPAPI.svc/imagefromurl?size=mobile&url=$1" height="180" />'],
+                    [/(http:\/\/tweetphoto\.com\/\d+|http:\/\/plixi\.com\/p\/\d+|http:\/\/lockerz\.com\/s\/\d+)/,'<img src="http://api.plixi.com/api/TPAPI.svc/imagefromurl?size=mobile&url=$1" height="180" />'],
                     // Ow.ly
-                    [/http:\/\/ow[.]ly\/i\/(\w+)/,'<img src="http://static.ow.ly/photos/thumb/$1.jpg" width="100" height="100" />'],
+                    [/http:\/\/ow\.ly\/i\/(\w+)/,'<img src="http://static.ow.ly/photos/thumb/$1.jpg" width="100" height="100" />'],
                     // Panoramio
-                    [/(http:\/\/www|https:\/\/ssl)[.]panoramio[.]com\/(photo|m\/photo)\/(\d+)(\?.*)?/,'<img src="https://mw2.google.com/mw-panoramio/photos/small/$3.jpg" />'],
+                    [/(http:\/\/(www\.)?|https:\/\/ssl\.)panoramio\.com\/(photo|m\/photo)\/(\d+)(\?.*)?/,'<img src="https://mw2.google.com/mw-panoramio/photos/small/$4.jpg" />'],
                     // Twipple
-                    [/http:\/\/p[.]twipple[.]jp\/(\w+)/,'<img src="http://p.twpl.jp/show/thumb/$1" />'],
+                    [/http:\/\/p\.twipple\.jp\/(\w+)/,'<img src="http://p.twpl.jp/show/thumb/$1" />'],
                     // niconico/静画/コミュニティ
-                    [/http:\/\/(nico[.]ms|www[.]nicovideo[.]jp\/watch)\/[sn]m((\d*[02468])?[048]|\d*[13579][26])$/, '<img src="http://tn-skr1.smilevideo.jp/smile?i=$2" />'],
-                    [/http:\/\/(nico[.]ms|www[.]nicovideo[.]jp\/watch)\/[sn]m((\d*[02468])?[159]|\d*[13579][37])$/, '<img src="http://tn-skr2.smilevideo.jp/smile?i=$2" />'],
-                    [/http:\/\/(nico[.]ms|www[.]nicovideo[.]jp\/watch)\/[sn]m((\d*[02468])?[26]|\d*[13579][048])$/, '<img src="http://tn-skr3.smilevideo.jp/smile?i=$2" />'],
-                    [/http:\/\/(nico[.]ms|www[.]nicovideo[.]jp\/watch)\/[sn]m((\d*[02468])?[37]|\d*[13579][159])$/, '<img src="http://tn-skr4.smilevideo.jp/smile?i=$2" />'],
-                    [/http:\/\/nico[.]ms\/l\/co((\d+)\d{4})$/, '<img src="http://icon.nimg.jp/community/$2/co$1.jpg" />'],
-                    [/http:\/\/nico[.]ms\/l\/co(\d{1,4})$/, '<img src="http://icon.nimg.jp/community/0/co$1.jpg" />'],
-                    [/http:\/\/nico[.]ms\/im(\d+)$/, '<img src="http://lohas.nicoseiga.jp/thumb/$1q" />']
+                    [/http:\/\/(nico\.ms|www\.nicovideo\.jp\/watch)\/[sn]m((\d*[02468])?[048]|\d*[13579][26])$/, '<img src="http://tn-skr1.smilevideo.jp/smile?i=$2" />'],
+                    [/http:\/\/(nico\.ms|www\.nicovideo\.jp\/watch)\/[sn]m((\d*[02468])?[159]|\d*[13579][37])$/, '<img src="http://tn-skr2.smilevideo.jp/smile?i=$2" />'],
+                    [/http:\/\/(nico\.ms|www\.nicovideo\.jp\/watch)\/[sn]m((\d*[02468])?[26]|\d*[13579][048])$/, '<img src="http://tn-skr3.smilevideo.jp/smile?i=$2" />'],
+                    [/http:\/\/(nico\.ms|www\.nicovideo\.jp\/watch)\/[sn]m((\d*[02468])?[37]|\d*[13579][159])$/, '<img src="http://tn-skr4.smilevideo.jp/smile?i=$2" />'],
+                    [/http:\/\/nico\.ms\/l\/co((\d+)\d{4})$/, '<img src="http://icon.nimg.jp/community/$2/co$1.jpg" />'],
+                    [/http:\/\/nico\.ms\/l\/co(\d{1,4})$/, '<img src="http://icon.nimg.jp/community/0/co$1.jpg" />'],
+                    [/http:\/\/nico\.ms\/im(\d+)$/, '<img src="http://lohas.nicoseiga.jp/thumb/$1q" />']
                     ];
 function getImageThumb(url, callback){
 	var thumbUrl = "";
@@ -2804,8 +2804,8 @@ var twitter = {
 	canUploadImage: true,
 	countMessage: function(message, uploader){
 		var messageLength = message.replace(/\s+$/g, "").length;
-	    var reHttps = new RegExp("^https://", 'g');
-		var re = new RegExp("(http[s]?://[\\w|/|\.|%|&|\?|=|\\-|#|!|:|;|~]+)", 'g'),
+		var reHttps = new RegExp("^https://", 'g');
+		var re = new RegExp("https?://((?=[A-Za-z0-9])[A-Za-z0-9\\-]*[A-Za-z0-9]\\.)+(aero|asia|biz|cat|com|coop|edu|gov|info|int|jobs|mil|mobi|museum|name|net|org|pro|tel|travel|xxx|ac|ad|ae|af|ag|ai|al|am|an|ao|aq|ar|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cs|cu|cv|cx|cy|cz|dd|de|dj|dk|dm|do|dz|ec|ee|eg|eh|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|ng|ni|nl|no|np|nr|nu|nz|om|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|sk|sl|sm|sn|so|sr|ss|st|su|sv|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|za|zm|zw)(/([\\w/=+\\-#@!:;~,|.%&?]*[\\w/=+\\-#])?|(?![A-Za-z0-9]))", 'g'),
 			match = message.match(re);
 		if(match){
 			$.each(match, function(){
