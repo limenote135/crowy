@@ -338,7 +338,7 @@ THUMBNAIL_RESOLVER = [
                     // Ow.ly
                     [/http:\/\/ow\.ly\/i\/(\w+)/,'<img src="http://static.ow.ly/photos/thumb/$1.jpg" width="100" height="100" />'],
                     // Panoramio
-                    [/(http:\/\/(www\.)?|https:\/\/ssl\.)panoramio\.com\/(photo|m\/photo)\/(\d+)(\?.*)?/,'<img src="https://mw2.google.com/mw-panoramio/photos/small/$4.jpg" />'],
+                    [/(http:\/\/(www\.)?|https:\/\/ssl\.)panoramio\.com\/(photo|m\/photo)\/(\d+)(\?.*)?/,'<img src="http://static.panoramio.com/photos/small/$4.jpg" />'],
                     // Twipple
                     [/http:\/\/p\.twipple\.jp\/(\w+)/,'<img src="http://p.twpl.jp/show/thumb/$1" />'],
                     // niconico/静画/コミュニティ
