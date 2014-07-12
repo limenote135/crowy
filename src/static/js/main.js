@@ -170,7 +170,7 @@ Array.prototype.shuffle = function() {
 				runtimes : 'html5,flash,gears,silverlight,browserplus,html4',
 				browse_button : pickFileElm.attr('id'),
 				container : containerId,
-				max_file_size : '10mb',
+				max_file_size : '3mb',
 				url : '',
 				flash_swf_url : STATIC_URL + 'plupload/js/plupload.flash.swf',
 				silverlight_xap_url : STATIC_URL + 'plupload/js/plupload.silverlight.xap',
@@ -191,9 +191,17 @@ Array.prototype.shuffle = function() {
 	
 			_uploader.bind('FilesAdded', function(up, files) {
 				if(up.files.length > 1){
+					// 複数ファイルがアップされたら削除してエラーを出す
+					while(up.files.length > 0){
+						_uploader.removeFile(up.files[up.files.length-1]);
+					}
+					fileListElm.text('');
+					fileListElm.append($("<div/>").text("Error: Uploading multiple files is not supported."));
+					fileListElm.show();
 					return;
 				}
 				pickFileElm.hide();
+				fileListElm.text(''); // エラーメッセージがあれば消去
 				fileListElm.show();
 				$.each(files, function(i, file) {
 					fileListElm.append(
@@ -227,6 +235,7 @@ Array.prototype.shuffle = function() {
 			});
 	
 			_uploader.bind('Error', function(up, err) {
+				fileListElm.text(''); // エラーメッセージが既に出ていれば消去
 				fileListElm.show();
 				fileListElm.append($("<div/>").text("Error: " + err.code +
 					", Message: " + err.message +
