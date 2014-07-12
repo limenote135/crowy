@@ -3176,13 +3176,21 @@ var twitter = {
 		//parse entities
 		if(entry.extended_entities || entry.entities){
 			var sortedEntities = [];
-			$.each(entry.extended_entities || entry.entities, function(key, entities){
-				sortedEntities = sortedEntities.concat(entities);
-			});
+			if(entry.extended_entities) {
+				$.each(entry.extended_entities, function(key, entities){
+					sortedEntities = sortedEntities.concat(entities);
+				});
+			}
+			if(entry.entities) {
+				$.each(entry.entities, function(key, entities){
+					if(!(key == 'media' && entry.extended_entities))
+						sortedEntities = sortedEntities.concat(entities);
+				});
+			}
 			sortedEntities.sort(function(a, b){return a.indices[0] - b.indices[0];});
-			var text = entry.text, lastIndex = -1;
+			var text = entry.text, lastIndex = 0;
 			$.each(sortedEntities, function(){
-				if(this.indices[0] > 0 && lastIndex < this.indices[0])
+				if(this.indices[0] > lastIndex)
 					displayText += text.substring(lastIndex, this.indices[0]);
 				if(this.screen_name)
 					displayText += '<a href="http://twitter.com/'+this.screen_name+'" target="_blank" class="open-profile" screen_name="'+this.screen_name+'">@'+this.screen_name+'</a>';
@@ -3515,24 +3523,27 @@ var twitter = {
 		}
 		if((entry.extended_entities && entry.extended_entities.media) || (entry.entities && entry.entities.media)) {
 			var imageGroupId = entry.id + "_" + new Date().getTime();
-			//if(entry.entities && entry.entities.media) {
-				$.each(entry.extended_entities.media || entry.entities.media, function(){
-					$('<a target="_blank"/>')
-						.attr("href", this.media_url)
-						.append($("<img/>")
-							.attr("src", this.media_url+":thumb")
-							.error(function(){
-								$(this).parent().remove();
-							})
-						)
-						.colorbox({
-							maxWidth:'100%',
-							maxHeight:'100%',
-							rel:imageGroupId
+			var media;
+			if (entry.extended_entities)
+				media = entry.extended_entities.media;
+			else
+		 		media = entry.entities.media;
+			$.each(media, function(){
+				$('<a target="_blank"/>')
+					.attr("href", this.media_url)
+					.append($("<img/>")
+						.attr("src", this.media_url+":thumb")
+						.error(function(){
+							$(this).parent().remove();
 						})
-						.appendTo(imageDiv);
-				});
-			//}
+					)
+					.colorbox({
+						maxWidth:'100%',
+						maxHeight:'100%',
+						rel:imageGroupId
+					})
+					.appendTo(imageDiv);
+			});
 		}
 		if(entry.retweet_user){
 			var rtUser = entry.retweet_user.name;
