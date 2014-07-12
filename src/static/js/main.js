@@ -3174,22 +3174,26 @@ var twitter = {
 		
 		var displayText = "";
 		//parse entities
-		if(entry.entities){
+		if(entry.extended_entities || entry.entities){
 			var sortedEntities = [];
-			$.each(entry.entities, function(key, entities){
+			$.each(entry.extended_entities || entry.entities, function(key, entities){
 				sortedEntities = sortedEntities.concat(entities);
 			});
 			sortedEntities.sort(function(a, b){return a.indices[0] - b.indices[0];});
-			var text = entry.text, lastIndex = 0;
+			var text = entry.text, lastIndex = -1;
 			$.each(sortedEntities, function(){
-				if(this.indices[0] > 0)
+				if(this.indices[0] > 0 && lastIndex < this.indices[0])
 					displayText += text.substring(lastIndex, this.indices[0]);
 				if(this.screen_name)
 					displayText += '<a href="http://twitter.com/'+this.screen_name+'" target="_blank" class="open-profile" screen_name="'+this.screen_name+'">@'+this.screen_name+'</a>';
 				if(this.text)
 					displayText += '<a href="http://twitter.com/#!/search/%23'+encodeURIComponent(this.text)+'" target="_blank" class="search-link">#'+this.text+'</a>';
-				if(this.url) {
-					displayText += '<a href="'+this.url+'" target="_blank">'+(this.display_url || this.url)+'</a>';
+				if(this.media_url) {
+					if(lastIndex < this.indices[0])
+						displayText += '<a href="'+this.url+'" target="_blank">'+(this.display_url || this.url)+'</a>';
+				} else if(this.url) {
+					if(lastIndex < this.indices[0])
+						displayText += '<a href="'+this.url+'" target="_blank">'+(this.display_url || this.url)+'</a>';
 					getImageThumb((this.expanded_url || this.url), function(thumbData){
 						var thumb = $(thumbData.thumb).load(function(){
 							createAmazonLink(thumbData.original, {
@@ -3509,10 +3513,10 @@ var twitter = {
 				});
 			}
 		}
-		if(entry.entities && entry.entities.media) {
+		if((entry.extended_entities && entry.extended_entities.media) || (entry.entities && entry.entities.media)) {
 			var imageGroupId = entry.id + "_" + new Date().getTime();
-			if(entry.entities && entry.entities.media) {
-				$.each(entry.entities.media, function(){
+			//if(entry.entities && entry.entities.media) {
+				$.each(entry.extended_entities.media || entry.entities.media, function(){
 					$('<a target="_blank"/>')
 						.attr("href", this.media_url)
 						.append($("<img/>")
@@ -3528,7 +3532,7 @@ var twitter = {
 						})
 						.appendTo(imageDiv);
 				});
-			}
+			//}
 		}
 		if(entry.retweet_user){
 			var rtUser = entry.retweet_user.name;

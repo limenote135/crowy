@@ -36,7 +36,7 @@ class TwitterHandler(BaseHandler):
             tmpl = os.path.join(os.path.dirname(__file__), "../view/twitter_accounts.html")
             return self.response.out.write(template.render(tmpl, template_values))
         if action == "messages":
-            query = {'include_rts':'true', 'include_entities':'true'}
+            query = {'include_rts':'true', 'include_entities':'true', 'include_extended_entities':'true'}
             type = self.request.get("type")
             #1.1で削除されたAPIにアクセスされた場合は空のリストを返却する
             if type in ("retweeted_by_me", "retweeted_to_me") :
