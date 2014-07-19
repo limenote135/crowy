@@ -26,12 +26,14 @@
 
 	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
 	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>
+	<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
 	<script type="text/javascript" src="{{static_url}}js/jquery.livequery.js"></script>
 	<script type="text/javascript" src="{{static_url}}js/jquery-dom.js"></script>
 	<script type="text/javascript" src="{{static_url}}js/tipTipv13/jquery.tipTip.min.js"></script>
 	<script type="text/javascript" src="{{static_url}}js/jquery.mousewheel.min.js"></script>
 	<script type="text/javascript" src="{{static_url}}js/jquery.cookie.js"></script>
 	<script type="text/javascript" src="{{static_url}}js/jquery.growing-textarea.js"></script>
+	<script type="text/javascript" src="{{static_url}}js/jquery.inview.js"></script>
 	<script type="text/javascript" src="{{static_url}}js/colorbox/jquery.colorbox-min.js"></script>
 	<script type="text/javascript" src="{{static_url}}js/plupload/plupload.full.js"></script>
 	<script type="text/javascript" src="{{static_url}}js/plupload/jquery.plupload.queue/jquery.plupload.queue.js"></script>
@@ -47,6 +49,7 @@
 	var EXPAND_URL = "{{expand_url}}";
 	var AD_HTML = "{{ad_html}}";
 	var information_key = "{{settings.INFORMATION_COOKIE_KEY}}";
+	var geocoder = new google.maps.Geocoder();
 	</script>{% endautoescape %}
 	{%if production%}
 	<script type="text/javascript" src="{{static_url}}js/main.min.js?{{version}}"></script>

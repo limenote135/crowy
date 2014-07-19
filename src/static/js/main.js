@@ -3681,9 +3681,23 @@ var twitter = {
 		}
 		if(entry.geo){
 			// Geotag の座標とリンクを表示
-			var geoDiv = $('<div class="geo"><a href="https://maps.google.co.jp/maps?q='+entry.geo.coordinates[0] + ',' + entry.geo.coordinates[1]+'&amp;hl=ja">' + entry.geo.coordinates[0] + ',' + entry.geo.coordinates[1] + '</a></div>');
+			var geoDiv = $('<div class="geo">at <a href="https://maps.google.co.jp/maps?q='+entry.geo.coordinates[0] + ',' + entry.geo.coordinates[1]+'&amp;hl=ja">' + entry.geo.coordinates[0] + ',' + entry.geo.coordinates[1] + '</a></div>');
 			geoDiv.find("a").attr("target","_blank");
-			messageElm.append(geoDiv);
+			if (entry.source) {
+				geoDiv.insertBefore(sourceDiv);
+			} else {
+				messageElm.append(geoDiv);
+			}
+			geoDiv.one('inview', function() {
+				// Geotag の座標とリンクを表示
+				geocoder.geocode(
+				    { location: new google.maps.LatLng(entry.geo.coordinates[0], entry.geo.coordinates[1]) },
+			  	  function(results, status){
+					if (status == google.maps.GeocoderStatus.OK) {
+					    geoDiv.find("a").text(results[0].formatted_address);
+					}
+			  	  });
+			});
 		}
 		return messageElm;
 	},
