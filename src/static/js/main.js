@@ -2134,17 +2134,8 @@ function buildSearch(){
 		var keyword = $("#search-keyword").val();
 		if(!$.trim(keyword)) return false;
 		$("#search-keyword").val("");
-		var loading = $('<p class="loading"/>').text("Loading...");
-		var popup = $('<div class="twitter"/>').append(loading).appendTo(document.body);
 		var type = "search/"+keyword;
 		var account_name = "";
-		var columnInfo = {
-			"name": keyword+"/Search",
-			"service": "twitter",
-			account_name: "",
-			"account_label": "Search",
-			type:type
-		};
 		var twitterAccounts = twitter.getOtherAccount();
 		if(twitterAccounts.length == 0){
 			alert($I.R103);
@@ -2152,6 +2143,24 @@ function buildSearch(){
 		} else {
 			account_name = twitterAccounts[0].account_name;
 		}
+		var columnInfo = {
+			"name": keyword+"/Search",
+			"service": "twitter",
+			account_name: account_name,
+			"account_label": "Search",
+			type:type
+		};
+		var message_list = $('<div class="message-list"/>');
+		var more_message = $('<div class="more-message">'+$I.R005+'</div>');
+		var column = $('<div class="column"/>');
+		var popup = $('<div class="twitter"/>').append(column).appendTo(document.body);
+		//createColumnInput(twitter, popup, columnInfo, column);
+		//renderAccountImage(twitter, popup, columnInfo);
+	        column.append($('<div class="column-content"/>')
+				.append(message_list)
+				.append(more_message)
+				.append($('<div class="loading-message" style="display:none"><span>'+$I.R006+'</span></div>'))
+			       ).data("conf", columnInfo);
 		popup.dialog({
 			title: $I.R071 + " / " + keyword,
 			height: 400,
@@ -2160,10 +2169,22 @@ function buildSearch(){
 			open: function(){
 				$.get("twitter/messages/"+account_name+"?type=" + encodeURIComponent(type),
 					function(data){
-						loading.remove();
-						$.each(data.messages, function(idx, entry){
-							twitter.renderMessage(entry, columnInfo).appendTo(popup);
+					    //もっと読むにリスナーをつける
+					    if(twitter.moreMessages){
+						popup.find(".more-message").click(twitter.moreMessages);
+						//一番下までスクロールしたら自動で「もっと読む」
+						popup.find(".column-content").scrollTop(0).scroll(function(){
+						    var $this = $(this), moreTimer = $this.data('moreTimer');
+						    if(moreTimer) clearTimeout(moreTimer);
+						    if($this.scrollTop() == $this.prop('scrollHeight') - $this.height()){
+							var moreTimer = setTimeout(function(){
+							    popup.find(".more-message").click();
+							}, 1000);
+							$this.data('moreTimer', moreTimer);
+						    }
 						});
+					    }
+					    more_message.click();
 					}
 				);
 			},
