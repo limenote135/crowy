@@ -3625,7 +3625,11 @@ var twitter = {
 						       $(this).parents('.timeline-tabbody').data('conf')))
 					.append($('<div/>'), loading).appendTo(document.body);
 				function loadReply(id){
-					$.get("twitter/status/"+columnInfo.account_name+"/?id="+id,
+					$.ajax({
+						type: "GET",
+						url: "twitter/status/"+columnInfo.account_name+"/",
+						data: "id="+id,
+						success:
 						function(entry){
 							var messageElm = twitter.renderMessage(entry, columnInfo, null, null, {is_conversation:true}).insertBefore(loading);
 							if(entry.in_reply_to_status_id){
@@ -3635,8 +3639,16 @@ var twitter = {
 								closeColumnInput(focusedColumnInput);
 								loading.hide();
 							}
+						},
+					    error:
+						function(XMLHttpRequest, textStatus, errorThrown){
+							if (XMLHttpRequest.status == 403) {
+								loading.text("Replied to a protected tweet.");
+							} else {
+								loading.text("An error occurred in loading tweets.");
+							}
 						}
-					);
+					});
 				}
 				function startLoadReply(id){
 					popup.find('.message').remove();
@@ -3680,7 +3692,6 @@ var twitter = {
 			messageElm.append(sourceDiv);
 		}
 		if(entry.geo){
-			// Geotag の座標とリンクを表示
 			var geoDiv = $('<div class="geo">at <a href="https://maps.google.co.jp/maps?q='+entry.geo.coordinates[0] + ',' + entry.geo.coordinates[1]+'&amp;hl=ja">' + entry.geo.coordinates[0] + ',' + entry.geo.coordinates[1] + '</a></div>');
 			geoDiv.find("a").attr("target","_blank");
 			if (entry.source) {

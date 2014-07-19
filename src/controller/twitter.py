@@ -23,101 +23,113 @@ import controller
 from controller import oauth,utils
 from controller.utils import BaseHandler,need_login
 
+class TwitterHttpException(Exception):
+    def __init__(self, message, status):
+        self.message = message
+        self.status = status
+    def __str__(self):
+        return repr(self.message)
+
 class TwitterHandler(BaseHandler):
     @need_login
     def get(self, action="", account="", param=""):
-        account = urllib.unquote_plus(account)
-        if action == "add_column":
-            template_values = self.add_column()
-            tmpl = os.path.join(os.path.dirname(__file__), "../view/twitter_add_column.html")
-            return self.response.out.write(template.render(tmpl, template_values))
-        if action == "accounts":
-            template_values = self.accounts()
-            tmpl = os.path.join(os.path.dirname(__file__), "../view/twitter_accounts.html")
-            return self.response.out.write(template.render(tmpl, template_values))
-        if action == "messages":
-            query = {'include_rts':'true', 'include_entities':'true', 'include_extended_entities':'true'}
-            type = self.request.get("type")
-            #1.1で削除されたAPIにアクセスされた場合は空のリストを返却する
-            if type in ("retweeted_by_me", "retweeted_to_me") :
+        try:
+            account = urllib.unquote_plus(account)
+            if action == "add_column":
+                template_values = self.add_column()
+                tmpl = os.path.join(os.path.dirname(__file__), "../view/twitter_add_column.html")
+                return self.response.out.write(template.render(tmpl, template_values))
+            if action == "accounts":
+                template_values = self.accounts()
+                tmpl = os.path.join(os.path.dirname(__file__), "../view/twitter_accounts.html")
+                return self.response.out.write(template.render(tmpl, template_values))
+            if action == "messages":
+                query = {'include_rts':'true', 'include_entities':'true', 'include_extended_entities':'true'}
+                type = self.request.get("type")
+                #1.1で削除されたAPIにアクセスされた場合は空のリストを返却する
+                if type in ("retweeted_by_me", "retweeted_to_me") :
+                    self.response.headers["Content-Type"] = "application/json"
+                    return self.response.out.write("[]")
+                elif type.startswith("list/") :
+                    types = type.split("/")
+                    list_name = types[2]
+                    url = "https://api.twitter.com/1.1/lists/statuses.json"
+                    query["slug"] = list_name
+                    query["owner_screen_name"] = types[1]
+                elif type.startswith("search/") :
+                    types = type.split("/", 1)
+                    url = "https://api.twitter.com/1.1/search/tweets.json"
+                    query["q"] = types[1]
+                elif type.startswith("user/") :
+                    types = type.split("/", 1)
+                    url = "https://api.twitter.com/1.1/statuses/user_timeline.json"
+                    query["screen_name"] = types[1]
+                elif type == "favorites" :
+                    url = "https://api.twitter.com/1.1/favorites/list.json"
+                elif type.startswith("favorites/") :
+                    types = type.split("/", 1)
+                    url = "https://api.twitter.com/1.1/favorites/list.json"
+                    query["id"] = types[1]
+                elif type == "mentions" :
+                    url = "https://api.twitter.com/1.1/statuses/mentions_timeline.json"
+                elif type.startswith("mentions/") :
+                    types = type.split("/", 1)
+                    url = "https://api.twitter.com/1.1/search/tweets.json"
+                    query["q"] = "@"+types[1]
+                elif type.startswith("direct_messages") :
+                    url = "https://api.twitter.com/1.1/"+type+".json"
+                else:
+                    url = "https://api.twitter.com/1.1/statuses/"+type+".json"
+
+                if self.request.get("max_id"):
+                    query["max_id"] = self.request.get("max_id")
+                if self.request.get("page"):
+                    query["page"] = self.request.get("page")
+                url += '?'
+                for k, v in query.items():                
+                    url += k + '=' + v.encode('utf-8').replace('#','%23') + '&'
+                template_values, status = self.get_messages(account, url)
+                if status == "401" or status == "403":
+                    self.error(int(status))
+                    return
+                elif status != "200":
+                    logging.warn("url=%s, status=%s, content=%s", url, status, template_values)
+                    raise TwitterHttpException("failed to get messages from twitter", status)
                 self.response.headers["Content-Type"] = "application/json"
-                return self.response.out.write("[]")
-            elif type.startswith("list/") :
-                types = type.split("/")
-                list_name = types[2]
-                url = "https://api.twitter.com/1.1/lists/statuses.json"
-                query["slug"] = list_name
-                query["owner_screen_name"] = types[1]
-            elif type.startswith("search/") :
-                types = type.split("/", 1)
-                url = "https://api.twitter.com/1.1/search/tweets.json"
-                query["q"] = types[1]
-            elif type.startswith("user/") :
-                types = type.split("/", 1)
-                url = "https://api.twitter.com/1.1/statuses/user_timeline.json"
-                query["screen_name"] = types[1]
-            elif type == "favorites" :
-                url = "https://api.twitter.com/1.1/favorites/list.json"
-            elif type.startswith("favorites/") :
-                types = type.split("/", 1)
-                url = "https://api.twitter.com/1.1/favorites/list.json"
-                query["id"] = types[1]
-            elif type == "mentions" :
-                url = "https://api.twitter.com/1.1/statuses/mentions_timeline.json"
-            elif type.startswith("mentions/") :
-                types = type.split("/", 1)
-                url = "https://api.twitter.com/1.1/search/tweets.json"
-                query["q"] = "@"+types[1]
-            elif type.startswith("direct_messages") :
-                url = "https://api.twitter.com/1.1/"+type+".json"
-            else:
-                url = "https://api.twitter.com/1.1/statuses/"+type+".json"
-                
-            if self.request.get("max_id"):
-                query["max_id"] = self.request.get("max_id")
-            if self.request.get("page"):
-                query["page"] = self.request.get("page")
-            url += '?'
-            for k, v in query.items():                
-                url += k + '=' + v.encode('utf-8').replace('#','%23') + '&'
-            template_values, status = self.get_messages(account, url)
-            if status == "401" or status == "403":
-                self.error(int(status))
-                return
-            elif status != "200":
-                logging.warn("url=%s, status=%s, content=%s", url, status, template_values)
-                raise Exception("failed to get messages from twitter")
-            self.response.headers["Content-Type"] = "application/json"
-            return self.response.out.write(simplejson.dumps(template_values))
-        if action == "lists":
-            url = "https://api.twitter.com/1.1/lists/list.json?screen_name=%s" % account
-            result = self.call_method(account, url)
-            self.response.headers["Content-Type"] = "application/json"
-            return self.response.out.write(result)
-        if action == "status":
-            id = self.request.get("id")
-            if id == None:
-                self.error(400)
-            url = "https://api.twitter.com/1.1/statuses/show.json?id=%s&include_entities=true" % id
-            result = self.call_method(account, url)
-            status = simplejson.loads(result)
-            status = self.convert_message(status)
-            self.response.headers["Content-Type"] = "application/json"
-            return self.response.out.write(simplejson.dumps(status))
-        if action == "api":
-            path = self.request.get("path")
-            if path == "":
-                self.error(400)
-                return
-            response, content = oauth.TwitterHandler.request(
-                self.session.get_user(),
-                account,
-                "https://api.twitter.com/1.1/%s" % path,
-                method="GET")
-            if response["status"] != "200":
-                raise Exception(response["status"] + ", path=" + path + ", content=" + content)
-            return self.response.out.write(content)
-        self.error(400)
+                return self.response.out.write(simplejson.dumps(template_values))
+            if action == "lists":
+                url = "https://api.twitter.com/1.1/lists/list.json?screen_name=%s" % account
+                result = self.call_method(account, url)
+                self.response.headers["Content-Type"] = "application/json"
+                return self.response.out.write(result)
+            if action == "status":
+                id = self.request.get("id")
+                if id == None:
+                    self.error(400)
+                url = "https://api.twitter.com/1.1/statuses/show.json?id=%s&include_entities=true" % id
+                result = self.call_method(account, url)
+                status = simplejson.loads(result)
+                status = self.convert_message(status)
+                self.response.headers["Content-Type"] = "application/json"
+                return self.response.out.write(simplejson.dumps(status))
+            if action == "api":
+                path = self.request.get("path")
+                if path == "":
+                    self.error(400)
+                    return
+                response, content = oauth.TwitterHandler.request(
+                    self.session.get_user(),
+                    account,
+                    "https://api.twitter.com/1.1/%s" % path,
+                    method="GET")
+                if response["status"] != "200":
+                    raise TwitterHttpException(response["status"] + ", path=" + path + ", content=" + content, response["status"])
+                return self.response.out.write(content)
+            self.error(400)
+        except TwitterHttpException as e:
+            self.error(e.status)
+        except Exception as e:
+            self.error(500)
     
     @need_login
     def post(self, action="", account="", param=""):
@@ -141,7 +153,7 @@ class TwitterHandler(BaseHandler):
                     params=params,
                     deadline=10)
                 if response["status"] != "200":
-                    raise Exception(response["status"] + " failed to send direct message. : " + content)
+                    raise TwitterHttpException(response["status"] + " failed to send direct message. : " + content, reponse["status"])
                 message = simplejson.loads(content)
                 return self.response.out.write(message["id"])
             params = {"status":message}
@@ -183,7 +195,7 @@ class TwitterHandler(BaseHandler):
                         params=params,
                         deadline=3)
             if response["status"] != "200":
-                raise Exception(response["status"] + " failed to post message. : " + content)
+                raise TwitterHttpException(response["status"] + " failed to post message. : " + content, response["status"])
             message = simplejson.loads(content)
             return self.response.out.write(message["id_str"])
         if action == "retweet":
@@ -197,7 +209,7 @@ class TwitterHandler(BaseHandler):
                 "https://api.twitter.com/1.1/statuses/retweet/%s.json" % status_id,
                 method="POST")
             if response["status"] != "200":
-                raise Exception(response["status"] + " failed to retweet message. : " + content)
+                raise TwitterHttpException(response["status"] + " failed to retweet message. : " + content, response["status"])
             return self.response.out.write("Message is retweeted.")
         if action == "favorites":
             status_id = self.request.get("id")
@@ -211,7 +223,7 @@ class TwitterHandler(BaseHandler):
                 params = {"id":status_id},
                 method="POST")
             if response["status"] != "200":
-                raise Exception(response["status"] + " failed to favorite message. : " + content)
+                raise TwitterHttpExceptionException(response["status"] + " failed to favorite message. : " + content, response["status"])
             return self.response.out.write("Message is favorited.")
         if action == "api":
             path = self.request.get("path")
@@ -225,7 +237,7 @@ class TwitterHandler(BaseHandler):
                 params = self.request.POST,
                 method="POST")
             if response["status"] != "200":
-                raise Exception(response["status"] + ", path=" + path + ", content=" + content)
+                raise TwitterHttpException(response["status"] + ", path=" + path + ", content=" + content, response["status"])
             return self.response.out.write(content)
         self.error(400)
     
@@ -303,7 +315,7 @@ class TwitterHandler(BaseHandler):
                 return content
             else:
                 logging.warn(url + " : " + response["status"])
-                raise Exception("failed to request %s", url)
+                raise TwitterHttpException("failed to request %s" % url, response["status"])
         except (urlfetch.DeadlineExceededError, urlfetch.DownloadError), e:
             if retry_count > 2:
                 raise e
