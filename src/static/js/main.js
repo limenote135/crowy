@@ -3218,10 +3218,10 @@ var twitter = {
 				if(this.text)
 					displayText += '<a href="http://twitter.com/#!/search/%23'+encodeURIComponent(this.text)+'" target="_blank" class="search-link">#'+this.text+'</a>';
 				if(this.media_url) {
-					if(lastIndex < this.indices[0])
+					if(lastIndex <= this.indices[0])
 						displayText += '<a href="'+this.url+'" target="_blank">'+(this.display_url || this.url)+'</a>';
 				} else if(this.url) {
-					if(lastIndex < this.indices[0])
+					if(lastIndex <= this.indices[0])
 						displayText += '<a href="'+this.url+'" target="_blank">'+(this.display_url || this.url)+'</a>';
 					getImageThumb((this.expanded_url || this.url), function(thumbData){
 						var thumb = $(thumbData.thumb).load(function(){
