@@ -52,7 +52,7 @@ class TwitterHandler(BaseHandler):
                     return self.response.out.write("[]")
                 elif type.startswith("list/") :
                     types = type.split("/")
-                    list_name = types[2]
+                    list_name = types[3]
                     url = "https://api.twitter.com/1.1/lists/statuses.json"
                     query["slug"] = list_name
                     query["owner_screen_name"] = types[1]
