@@ -170,7 +170,7 @@ Array.prototype.shuffle = function() {
 				runtimes : 'html5,flash,gears,silverlight,browserplus,html4',
 				browse_button : pickFileElm.attr('id'),
 				container : containerId,
-				max_file_size : '10mb',
+				max_file_size : '3mb',
 				url : '',
 				flash_swf_url : STATIC_URL + 'plupload/js/plupload.flash.swf',
 				silverlight_xap_url : STATIC_URL + 'plupload/js/plupload.silverlight.xap',
@@ -191,9 +191,17 @@ Array.prototype.shuffle = function() {
 	
 			_uploader.bind('FilesAdded', function(up, files) {
 				if(up.files.length > 1){
+					// 複数ファイルがアップされたら削除してエラーを出す
+					while(up.files.length > 0){
+						_uploader.removeFile(up.files[up.files.length-1]);
+					}
+					fileListElm.text('');
+					fileListElm.append($("<div/>").text("Error: Uploading multiple files is not supported."));
+					fileListElm.show();
 					return;
 				}
 				pickFileElm.hide();
+				fileListElm.text(''); // エラーメッセージがあれば消去
 				fileListElm.show();
 				$.each(files, function(i, file) {
 					fileListElm.append(
@@ -227,6 +235,7 @@ Array.prototype.shuffle = function() {
 			});
 	
 			_uploader.bind('Error', function(up, err) {
+				fileListElm.text(''); // エラーメッセージが既に出ていれば消去
 				fileListElm.show();
 				fileListElm.append($("<div/>").text("Error: " + err.code +
 					", Message: " + err.message +
@@ -296,7 +305,7 @@ function callOnlyInitial(options){
 }
 THUMBNAIL_RESOLVER = [
                     // twitpic
-                    [/http:\/\/twitpic[.]com\/(\w+)/,'<img src="http://twitpic.com/show/thumb/$1" width="150" height="150" />'],
+                    [/http:\/\/twitpic\.com\/(\w+)/,'<img src="http://twitpic.com/show/thumb/$1" width="150" height="150" />'],
                     // Amazon
                     [/http:\/\/www\.amazon\.co\.jp\/.*\/([0-9A-Z]{10,13})[\?\/]?.*/,'<img src="http://ws.assoc-amazon.jp/widgets/q?_encoding=UTF8&Format=_SL110_&ASIN=$1&MarketPlace=JP&ID=AsinImage&WS=1&ServiceVersion=20070822" />'],
                     // Amazon
@@ -308,35 +317,47 @@ THUMBNAIL_RESOLVER = [
                       }
                      ],
                     // youtube
-                    [/http:\/\/(?:www[.]youtube[.]com\/watch(?:\?|#!)v=|youtu[.]be\/)([\w\-]+)(?:[-_.!~*\'()a-zA-Z0-9;\/?:@&=+$,%#]*)/,'<img src="http://i.ytimg.com/vi/$1/hqdefault.jpg" width="240" height="180" />'],
+                    [/http:\/\/(?:www\.youtube\.com\/watch(?:\?|#!)v=|youtu\.be\/)([\w\-]+)(?:[-_.!~*\'()a-zA-Z0-9;\/?:@&=+$,%#]*)/,'<img src="http://i.ytimg.com/vi/$1/hqdefault.jpg" width="240" height="180" />'],
                     // yFrog
-                    [/http:\/\/yfrog[.]com\/(\w+)/,'<img src="http://yfrog.com/$1.th.jpg" />'],
+                    [/http:\/\/yfrog\.com\/(\w+)/,'<img src="http://yfrog.com/$1.th.jpg" />'],
                    // Instagram
-                    [/http:\/\/instagr[.]am\/p\/([\w\-]+)\//,'<img src="http://instagr.am/p/$1/media/?size=t" width="150" height="150" />'],
+                    [/http:\/\/instagr\.am\/p\/([\w\-]+)\//,'<img src="http://instagr.am/p/$1/media/?size=t" width="150" height="150" />'],
                      // Mobypicture
-                    [/http:\/\/moby[.]to\/(\w+)/,'<img src="http://moby.to/$1:small" width="150" />'],
+                    [/http:\/\/moby\.to\/(\w+)/,'<img src="http://moby.to/$1:small" width="150" />'],
                     // 携帯百景
-                    [/http:\/\/movapic[.]com\/pic\/(\w+)/,'<img src="http://image.movapic.com/pic/s_$1.jpeg" />'],
+                    [/http:\/\/movapic\.com\/pic\/(\w+)/,'<img src="http://image.movapic.com/pic/s_$1.jpeg" />'],
                     // はてなフォトライフ
-                    [/http:\/\/f[.]hatena[.]ne[.]jp\/(([\w\-])[\w\-]+)\/((\d{8})\d+)/,'<img src="http://img.f.hatena.ne.jp/images/fotolife/$2/$1/$4/$3_120.jpg" />'],
+                    [/http:\/\/f\.hatena\.ne\.jp\/(([\w\-])[\w\-]+)\/((\d{8})\d+)/,'<img src="http://img.f.hatena.ne.jp/images/fotolife/$2/$1/$4/$3_120.jpg" />'],
                     // PhotoShare
-                    [/http:\/\/(?:www[.])?bcphotoshare[.]com\/photos\/\d+\/(\d+)/,'<img src="http://images.bcphotoshare.com/storages/$1/thumb180.jpg" width="180" height="180" />'],
+                    [/http:\/\/(?:www\.)?bcphotoshare\.com\/photos\/\d+\/(\d+)/,'<img src="http://images.bcphotoshare.com/storages/$1/thumb180.jpg" width="180" height="180" />'],
                     // PhotoShare の短縮 URL
-                    [/http:\/\/bctiny[.]com\/p(\w+)/, '\'<img src="http://images.bcphotoshare.com/storages/\' . base_convert("$1", 36, 10) . \'/thumb180.jpg" width="180" height="180" />\''],
+                    [/http:\/\/bctiny\.com\/p(\w+)/, '\'<img src="http://images.bcphotoshare.com/storages/\' . base_convert("$1", 36, 10) . \'/thumb180.jpg" width="180" height="180" />\''],
                     // img.ly
-                    [/http:\/\/img[.]ly\/(\w+)/,'<img src="http://img.ly/show/thumb/$1" width="150" height="150" />'],
+                    [/http:\/\/img\.ly\/(\w+)/,'<img src="http://img.ly/show/thumb/$1" width="150" height="150" />'],
                     // brightkite
-                    [/http:\/\/brightkite[.]com\/objects\/((\w{2})(\w{2})\w+)/,'<img src="http://cdn.brightkite.com/$2/$3/$1-feed.jpg" />'],
+                    [/http:\/\/brightkite\.com\/objects\/((\w{2})(\w{2})\w+)/,'<img src="http://cdn.brightkite.com/$2/$3/$1-feed.jpg" />'],
                     // Twitgoo
-                    [/http:\/\/twitgoo[.]com\/(\w+)/,'<img src="http://twitgoo.com/$1/mini" />'],
+                    [/http:\/\/twitgoo\.com\/(\w+)/,'<img src="http://twitgoo.com/$1/mini" />'],
                     // pic.im
-                    [/http:\/\/pic[.]im\/(\w+)/,'<img src="http://pic.im/website/thumbnail/$1" />'],
+                    [/http:\/\/pic\.im\/(\w+)/,'<img src="http://pic.im/website/thumbnail/$1" />'],
                     // imgur
-                    [/http:\/\/imgur[.]com\/(\w+)[.]jpg/,'<img src="http://i.imgur.com/$1m.jpg" />'],
+                    [/http:\/\/imgur\.com\/(\w+)\.jpg/,'<img src="http://i.imgur.com/$1m.jpg" />'],
                     // TweetPhoto, Plixi, Lockerz
-                    [/(http:\/\/tweetphoto[.]com\/\d+|http:\/\/plixi[.]com\/p\/\d+|http:\/\/lockerz[.]com\/s\/\d+)/,'<img src="http://api.plixi.com/api/TPAPI.svc/imagefromurl?size=mobile&url=$1" height="180" />'],
+                    [/(http:\/\/tweetphoto\.com\/\d+|http:\/\/plixi\.com\/p\/\d+|http:\/\/lockerz\.com\/s\/\d+)/,'<img src="http://api.plixi.com/api/TPAPI.svc/imagefromurl?size=mobile&url=$1" height="180" />'],
                     // Ow.ly
-                    [/http:\/\/ow[.]ly\/i\/(\w+)/,'<img src="http://static.ow.ly/photos/thumb/$1.jpg" width="100" height="100" />']
+                    [/http:\/\/ow\.ly\/i\/(\w+)/,'<img src="http://static.ow.ly/photos/thumb/$1.jpg" width="100" height="100" />'],
+                    // Panoramio
+                    [/(http:\/\/(www\.)?|https:\/\/ssl\.)panoramio\.com\/(photo|m\/photo)\/(\d+)(\?.*)?/,'<img src="http://static.panoramio.com/photos/small/$4.jpg" />'],
+                    // Twipple
+                    [/http:\/\/p\.twipple\.jp\/(\w+)/,'<img src="http://p.twpl.jp/show/thumb/$1" />'],
+                    // niconico/静画/コミュニティ
+                    [/http:\/\/(nico\.ms|www\.nicovideo\.jp\/watch)\/[sn]m((\d*[02468])?[048]|\d*[13579][26])$/, '<img src="http://tn-skr1.smilevideo.jp/smile?i=$2" />'],
+                    [/http:\/\/(nico\.ms|www\.nicovideo\.jp\/watch)\/[sn]m((\d*[02468])?[159]|\d*[13579][37])$/, '<img src="http://tn-skr2.smilevideo.jp/smile?i=$2" />'],
+                    [/http:\/\/(nico\.ms|www\.nicovideo\.jp\/watch)\/[sn]m((\d*[02468])?[26]|\d*[13579][048])$/, '<img src="http://tn-skr3.smilevideo.jp/smile?i=$2" />'],
+                    [/http:\/\/(nico\.ms|www\.nicovideo\.jp\/watch)\/[sn]m((\d*[02468])?[37]|\d*[13579][159])$/, '<img src="http://tn-skr4.smilevideo.jp/smile?i=$2" />'],
+                    [/http:\/\/nico\.ms\/l\/co((\d+)\d{4})$/, '<img src="http://icon.nimg.jp/community/$2/co$1.jpg" />'],
+                    [/http:\/\/nico\.ms\/l\/co(\d{1,4})$/, '<img src="http://icon.nimg.jp/community/0/co$1.jpg" />'],
+                    [/http:\/\/nico\.ms\/im(\d+)$/, '<img src="http://lohas.nicoseiga.jp/thumb/$1q" />']
                     ];
 function getImageThumb(url, callback){
 	var thumbUrl = "";
@@ -2113,17 +2134,8 @@ function buildSearch(){
 		var keyword = $("#search-keyword").val();
 		if(!$.trim(keyword)) return false;
 		$("#search-keyword").val("");
-		var loading = $('<p class="loading"/>').text("Loading...");
-		var popup = $('<div class="twitter"/>').append(loading).appendTo(document.body);
 		var type = "search/"+keyword;
 		var account_name = "";
-		var columnInfo = {
-			"name": keyword+"/Search",
-			"service": "twitter",
-			account_name: "",
-			"account_label": "Search",
-			type:type
-		};
 		var twitterAccounts = twitter.getOtherAccount();
 		if(twitterAccounts.length == 0){
 			alert($I.R103);
@@ -2131,6 +2143,24 @@ function buildSearch(){
 		} else {
 			account_name = twitterAccounts[0].account_name;
 		}
+		var columnInfo = {
+			"name": keyword+"/Search",
+			"service": "twitter",
+			account_name: account_name,
+			"account_label": "Search",
+			type:type
+		};
+		var message_list = $('<div class="message-list"/>');
+		var more_message = $('<div class="more-message">'+$I.R005+'</div>');
+		var column = $('<div class="column"/>');
+		var popup = $('<div class="twitter"/>').append(column).appendTo(document.body);
+		//createColumnInput(twitter, popup, columnInfo, column);
+		//renderAccountImage(twitter, popup, columnInfo);
+	        column.append($('<div class="column-content"/>')
+				.append(message_list)
+				.append(more_message)
+				.append($('<div class="loading-message" style="display:none"><span>'+$I.R006+'</span></div>'))
+			       ).data("conf", columnInfo);
 		popup.dialog({
 			title: $I.R071 + " / " + keyword,
 			height: 400,
@@ -2139,10 +2169,22 @@ function buildSearch(){
 			open: function(){
 				$.get("twitter/messages/"+account_name+"?type=" + encodeURIComponent(type),
 					function(data){
-						loading.remove();
-						$.each(data.messages, function(idx, entry){
-							twitter.renderMessage(entry, columnInfo).appendTo(popup);
+					    //もっと読むにリスナーをつける
+					    if(twitter.moreMessages){
+						popup.find(".more-message").click(twitter.moreMessages);
+						//一番下までスクロールしたら自動で「もっと読む」
+						popup.find(".column-content").scrollTop(0).scroll(function(){
+						    var $this = $(this), moreTimer = $this.data('moreTimer');
+						    if(moreTimer) clearTimeout(moreTimer);
+						    if($this.scrollTop() == $this.prop('scrollHeight') - $this.height()){
+							var moreTimer = setTimeout(function(){
+							    popup.find(".more-message").click();
+							}, 1000);
+							$this.data('moreTimer', moreTimer);
+						    }
 						});
+					    }
+					    more_message.click();
 					}
 				);
 			},
@@ -2792,17 +2834,19 @@ var twitter = {
 	canUploadImage: true,
 	countMessage: function(message, uploader){
 		var messageLength = message.replace(/\s+$/g, "").length;
-		var re = new RegExp("(http[s]?://[\\w|/|\.|%|&|\?|=|\\-|#|!|:|;|~]+)", 'g'),
+		var reHttps = new RegExp("^https://", 'g');
+		var re = new RegExp("https?://((?=[A-Za-z0-9])[A-Za-z0-9\\-]*[A-Za-z0-9]\\.)+(aero|asia|biz|cat|com|coop|edu|gov|info|int|jobs|mil|mobi|museum|name|net|org|pro|tel|travel|xxx|ac|ad|ae|af|ag|ai|al|am|an|ao|aq|ar|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cs|cu|cv|cx|cy|cz|dd|de|dj|dk|dm|do|dz|ec|ee|eg|eh|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|ng|ni|nl|no|np|nr|nu|nz|om|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|sk|sl|sm|sn|so|sr|ss|st|su|sv|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|za|zm|zw)(/([\\w/=+\\-#@!:;~,|.%&?]*[\\w/=+\\-#])?|(?![A-Za-z0-9]))", 'g'),
 			match = message.match(re);
 		if(match){
 			$.each(match, function(){
-				if(this.length > 20){
-					messageLength += 20 - this.length;//t.coは20文字に短縮される
-				}
+			    messageLength += 22 - this.length;//t.coは22文字に短縮される
+			    if (this.match(reHttps)) {
+				messageLength += 1; // httpsは23文字
+			    }
 			});
 		}
 		if(uploader.uploader('keys').length > 0){
-			messageLength += 21;//スペース＋URLになる
+			messageLength += 23;//スペース＋URLになる
 		}
 		var charCount = twitter.messageLimit - messageLength;
 		return charCount;
@@ -3151,22 +3195,34 @@ var twitter = {
 		
 		var displayText = "";
 		//parse entities
-		if(entry.entities){
+		if(entry.extended_entities || entry.entities){
 			var sortedEntities = [];
-			$.each(entry.entities, function(key, entities){
-				sortedEntities = sortedEntities.concat(entities);
-			});
-			sortedEntities.sort(function(a, b){return a.indices[0] > b.indices[0];});
+			if(entry.extended_entities) {
+				$.each(entry.extended_entities, function(key, entities){
+					sortedEntities = sortedEntities.concat(entities);
+				});
+			}
+			if(entry.entities) {
+				$.each(entry.entities, function(key, entities){
+					if(!(key == 'media' && entry.extended_entities))
+						sortedEntities = sortedEntities.concat(entities);
+				});
+			}
+			sortedEntities.sort(function(a, b){return a.indices[0] - b.indices[0];});
 			var text = entry.text, lastIndex = 0;
 			$.each(sortedEntities, function(){
-				if(this.indices[0] > 0)
+				if(this.indices[0] > lastIndex)
 					displayText += text.substring(lastIndex, this.indices[0]);
 				if(this.screen_name)
 					displayText += '<a href="http://twitter.com/'+this.screen_name+'" target="_blank" class="open-profile" screen_name="'+this.screen_name+'">@'+this.screen_name+'</a>';
 				if(this.text)
-					displayText += '<a href="http://twitter.com/#!/search/%23'+encodeURIComponent(this.text)+'" target="_blank">#'+this.text+'</a>';
-				if(this.url) {
-					displayText += '<a href="'+this.url+'" target="_blank">'+(this.display_url || this.url)+'</a>';
+					displayText += '<a href="http://twitter.com/#!/search/%23'+encodeURIComponent(this.text)+'" target="_blank" class="search-link">#'+this.text+'</a>';
+				if(this.media_url) {
+					if(lastIndex <= this.indices[0])
+						displayText += '<a href="'+this.url+'" target="_blank">'+(this.display_url || this.url)+'</a>';
+				} else if(this.url) {
+					if(lastIndex <= this.indices[0])
+						displayText += '<a href="'+this.url+'" target="_blank">'+(this.display_url || this.url)+'</a>';
 					getImageThumb((this.expanded_url || this.url), function(thumbData){
 						var thumb = $(thumbData.thumb).load(function(){
 							createAmazonLink(thumbData.original, {
@@ -3219,6 +3275,108 @@ var twitter = {
 				var _user = user;
 				if(screen_name) _user = {screen_name:screen_name};
 				twitter.openProfile(_user, columnInfo, event);
+			});
+
+		$('.search-link', messageElm)
+			.click(function(event){
+			    // ハッシュタグリンククリック時の処理
+			    //alert($(this).text());
+
+		event.preventDefault();
+		var keyword = $(this).text();
+		if(!$.trim(keyword)) return false;
+		var loading = $('<p class="loading"/>').text("Loading...");
+		var popup = $('<div class="twitter"/>').append(loading).appendTo(document.body);
+		var type = "search/"+keyword;
+		var account_name = "";
+		var twitterAccounts = twitter.getOtherAccount();
+		if(twitterAccounts.length == 0){
+			alert($I.R103);
+			return;
+		} else {
+			account_name = twitterAccounts[0].account_name;
+		}
+		var columnInfo = {
+			"name": keyword+"/Search",
+			"service": "twitter",
+			account_name: account_name,
+			"account_label": "Search",
+			type:type
+		};
+		popup.dialog({
+			title: $I.R071 + " / " + keyword,
+			height: 400,
+			width:400,
+			dialogClass: "thread",
+			open: function(){
+				$.get("twitter/messages/"+account_name+"?type=" + encodeURIComponent(type),
+					function(data){
+						loading.remove();
+						$.each(data.messages, function(idx, entry){
+							twitter.renderMessage(entry, columnInfo).appendTo(popup);
+						});
+					}
+				);
+			},
+			close: function(event, ui){
+				popup.remove();
+			},
+			buttons: [
+				{
+					text:$I.R027,
+					click: function(){
+						if(twitterAccounts.length == 0){
+							alert($I.R103);
+						}else if(twitterAccounts.length == 1){
+							columnInfo.account_name = twitterAccounts[0].account_name;
+							columnInfo.account_label = twitterAccounts[0].account_name;
+							addColumn(columnInfo, function(){
+								popup.dialog("close");
+							});
+						}else{
+							var accountImg = $('<img/>'),
+								accountsSelect = $('<select/>'),
+								accountsPopup = $('<div class="tw-select-accounts"/>').append(
+									$('<div class="label"/>').text($I.R104),
+									$('<div class="tw-accounts-pulldown"/>').append(
+										accountImg,
+										accountsSelect
+									)
+								);
+							$.each(twitterAccounts, function(){
+								$('<option/>')
+									.text(this.account_name).val(this.account_name).data('account', this)
+									.appendTo(accountsSelect);
+							});
+							accountImg.attr('src', twitterAccounts[0].profile_image_url);
+							accountsSelect.change(function(){
+								var _account = $('option:selected', accountsSelect).data('account');
+								accountImg.attr('src', _account.profile_image_url);
+							});
+							accountsPopup.dialog({
+								modal:true,
+								buttons:[
+									{
+										text:$I.R027,
+										click:function(){
+											var selectedAccount = $('option:selected', accountsSelect).val();
+											columnInfo.account_name = selectedAccount;
+											columnInfo.account_label = selectedAccount;
+											addColumn(columnInfo, function(){
+												accountsPopup.dialog('close');
+												popup.dialog("close");
+											});
+										}
+									}
+								]
+							})
+						}
+					}
+				}
+			]
+		});
+
+			    return false;
 			});
 		
 		function sendDM(){
@@ -3384,26 +3542,29 @@ var twitter = {
 				});
 			}
 		}
-		if(entry.entities && entry.entities.media) {
+		if((entry.extended_entities && entry.extended_entities.media) || (entry.entities && entry.entities.media)) {
 			var imageGroupId = entry.id + "_" + new Date().getTime();
-			if(entry.entities && entry.entities.media) {
-				$.each(entry.entities.media, function(){
-					$('<a target="_blank"/>')
-						.attr("href", this.media_url)
-						.append($("<img/>")
-							.attr("src", this.media_url+":thumb")
-							.error(function(){
-								$(this).parent().remove();
-							})
-						)
-						.colorbox({
-							maxWidth:'100%',
-							maxHeight:'100%',
-							rel:imageGroupId
+			var media;
+			if (entry.extended_entities)
+				media = entry.extended_entities.media;
+			else
+		 		media = entry.entities.media;
+			$.each(media, function(){
+				$('<a target="_blank"/>')
+					.attr("href", this.media_url)
+					.append($("<img/>")
+						.attr("src", this.media_url+":thumb")
+						.error(function(){
+							$(this).parent().remove();
 						})
-						.appendTo(imageDiv);
-				});
-			}
+					)
+					.colorbox({
+						maxWidth:'100%',
+						maxHeight:'100%',
+						rel:imageGroupId
+					})
+					.appendTo(imageDiv);
+			});
 		}
 		if(entry.retweet_user){
 			var rtUser = entry.retweet_user.name;
@@ -3457,12 +3618,20 @@ var twitter = {
 		if((!opts || !opts.is_conversation) && (entry.in_reply_to_status_id || (entry.is_search && entry.text.indexOf('@')==0))){
 			var convDiv = $('<a class="conversation" href="#"/>').text($I.R049).click(function(){
 				var loading = $('<p class="loading"/>').text("Loading...");
-				var popup = $('<div class="column twitter"/>').data('id', entry["id_str"])
+				var popup = $('<div class="column twitter"/>')
+					.data('id', entry["id_str"])
+					.data('conf', ($(this).parents('.column').length > 0 ?
+						       $(this).parents('.column').data('conf') :
+						       $(this).parents('.timeline-tabbody').data('conf')))
 					.append($('<div/>'), loading).appendTo(document.body);
 				function loadReply(id){
-					$.get("twitter/status/"+columnInfo.account_name+"/?id="+id,
+					$.ajax({
+						type: "GET",
+						url: "twitter/status/"+columnInfo.account_name+"/",
+						data: "id="+id,
+						success:
 						function(entry){
-							var messageElm = twitter.renderMessage(entry, columnInfo, null, null, {is_conversation:true}).insertAfter(loading);
+							var messageElm = twitter.renderMessage(entry, columnInfo, null, null, {is_conversation:true}).insertBefore(loading);
 							if(entry.in_reply_to_status_id){
 								loadReply(entry.in_reply_to_status_id);
 							}else{
@@ -3470,8 +3639,16 @@ var twitter = {
 								closeColumnInput(focusedColumnInput);
 								loading.hide();
 							}
+						},
+					    error:
+						function(XMLHttpRequest, textStatus, errorThrown){
+							if (XMLHttpRequest.status == 403) {
+								loading.text("Replied to a protected tweet.");
+							} else {
+								loading.text("An error occurred in loading tweets.");
+							}
 						}
-					);
+					});
 				}
 				function startLoadReply(id){
 					popup.find('.message').remove();
@@ -3480,7 +3657,7 @@ var twitter = {
 						loadReply(id);
 					}else{
 						if(entry.in_reply_to_status_id){
-							twitter.renderMessage(entry, columnInfo, null, null, {is_conversation:true}).insertAfter(loading);
+							twitter.renderMessage(entry, columnInfo, null, null, {is_conversation:true}).insertBefore(loading);
 							loadReply(entry.in_reply_to_status_id);
 						}else{
 							loadReply(entry.id);
@@ -3513,6 +3690,25 @@ var twitter = {
 			var sourceDiv = $('<div class="source">'+source+'</div>');
 			sourceDiv.find("a").attr("target","_blank");
 			messageElm.append(sourceDiv);
+		}
+		if(entry.geo){
+			var geoDiv = $('<div class="geo">at <a href="https://maps.google.co.jp/maps?q='+entry.geo.coordinates[0] + ',' + entry.geo.coordinates[1]+'&amp;hl=ja">' + entry.geo.coordinates[0] + ',' + entry.geo.coordinates[1] + '</a></div>');
+			geoDiv.find("a").attr("target","_blank");
+			if (entry.source) {
+				geoDiv.insertBefore(sourceDiv);
+			} else {
+				messageElm.append(geoDiv);
+			}
+			geoDiv.one('inview', function() {
+				// Geotag の座標とリンクを表示
+				geocoder.geocode(
+				    { location: new google.maps.LatLng(entry.geo.coordinates[0], entry.geo.coordinates[1]) },
+			  	  function(results, status){
+					if (status == google.maps.GeocoderStatus.OK) {
+					    geoDiv.find("a").text(results[0].formatted_address);
+					}
+			  	  });
+			});
 		}
 		return messageElm;
 	},

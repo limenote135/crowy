@@ -1,1 +1,0 @@
-webapp_django_version = '0.96'

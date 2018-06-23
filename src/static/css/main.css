@@ -1788,7 +1788,7 @@ li#account-name {
 }
 .message{
 	border-bottom: 1px solid #d7d7d7;
-	padding: 6px 5px 9px 35px;
+	padding: 6px 5px 4px 35px;
 	position: relative;
 	zoom:1;
 	width:100%\9;
@@ -1930,14 +1930,12 @@ li#account-name {
 	border:1px solid #CCC;
 	margin:2px;
 }
-.message .source {
-	position: absolute;
-	bottom: 2px;
-	left: 40px;
+.message .geo, .message .source {
+	margin-left: 4px;
 	color: #999;
 	font-size: 11px;
 }
-.message .source a {
+.message .geo a, .message .source a {
 	color: #aaa;
 }
 #cboxError a{
@@ -1974,7 +1972,7 @@ li#account-name {
 	line-height:30px;
 }
 .twitter .message{
-	padding-bottom: 18px;
+	padding-bottom: 3px;
 }
 .twitter .message .user-fullname{
 	font-weight:bold;
