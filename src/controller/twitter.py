@@ -86,6 +86,7 @@ class TwitterHandler(BaseHandler):
                     query["max_id"] = self.request.get("max_id")
                 if self.request.get("page"):
                     query["page"] = self.request.get("page")
+                query["tweet_mode"] = "extended"
                 url += '?'
                 for k, v in query.items():                
                     url += k + '=' + v.encode('utf-8').replace('#','%23') + '&'

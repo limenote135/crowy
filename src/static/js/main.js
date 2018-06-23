@@ -3209,7 +3209,8 @@ var twitter = {
 				});
 			}
 			sortedEntities.sort(function(a, b){return a.indices[0] - b.indices[0];});
-			var text = entry.text, lastIndex = 0;
+			var text = entry.text ? entry.text : entry.full_text;
+			var lastIndex = 0;
 			$.each(sortedEntities, function(){
 				if(this.indices[0] > lastIndex)
 					displayText += text.substring(lastIndex, this.indices[0]);
@@ -3258,7 +3259,7 @@ var twitter = {
 		}
 		if(entry.is_search || !entry.entities){
 			if(!entry.entities || !entry.entities.urls){
-				displayText = entry.text;
+				displayText = entry.text ? entry.text : entry.full_text;
 				displayText = displayText.replace(/(http[s]?:\/\/[\w|\/|\.|%|&|\?|=|\-|#|!|:|;|~]+)/g, '<a href="$1" target="_blank">$1</a>');
 			}
 			//mention
@@ -3423,9 +3424,9 @@ var twitter = {
 			messageElm.data("dm", sendDM)
 			.data("reply", function(){
 				var account_name = columnInfo.account_name;
-				openColumnInput(messageElm.parents('.column'), columnInfo, "@"+user.screen_name+" ", entry.id, entry.text);
+				openColumnInput(messageElm.parents('.column'), columnInfo, "@"+user.screen_name+" ", entry.id, entry.text ? entry.text : entry.full_text);
 			}).data("rt", function(){
-				var unescaped_text = $('<span/>').html(entry.text).text();
+				var unescaped_text = $('<span/>').html(entry.text ? entry.text : entry.full_text).text();
 				var account_name = columnInfo.account_name;
 				openColumnInput(messageElm.parents('.column'), columnInfo, " RT @"+user.screen_name+": "+unescaped_text, "", "", true);
 			});
@@ -3447,7 +3448,7 @@ var twitter = {
 						.append(
 							$('<div class="retweet-dialog"/>').append(
 								$('<div class="label"/>').text($I.R053),
-								$('<div class="tweet"/>').text(entry.text),
+								$('<div class="tweet"/>').text(entry.text ? entry.text : entry.full_text),
 								accountsElm
 							)
 						)
@@ -3486,7 +3487,7 @@ var twitter = {
 						});
 				});
 			}
-			var match = entry.text.match(/@[a-zA-Z0-9_]+/g);
+			var match = (entry.text ? entry.text : entry.full_text).match(/@[a-zA-Z0-9_]+/g);
 			if(match && match.length > 0){
 				var account_name = columnInfo.account_name;
 				if(match.length == 1 && match[0] == "@"+account_name){
@@ -3499,13 +3500,13 @@ var twitter = {
 							if(match[i] != "@"+user.screen_name && match[i] != "@"+account_name)
 								to += match[i]+" ";
 						}
-						openColumnInput(messageElm.parents('.column'), columnInfo, to, entry.id, entry.text);
+						openColumnInput(messageElm.parents('.column'), columnInfo, to, entry.id, entry.text ? entry.text : entry.full_text);
 					});
 				}
 			}
 			if(user.screen_name == columnInfo.account_name){
 				messageElm.data('delete', function(){
-					if(!confirm($I.R082({tweet:entry.text}))) return false;
+					if(!confirm($I.R082({tweet:entry.text ? entry.text : entry.full_text}))) return false;
 					var url = "twitter/api/"+columnInfo.account_name+"?path=statuses/destroy/"+entry.id+".json";
 					$.ajax({
 						type:"POST",
@@ -3525,7 +3526,7 @@ var twitter = {
 			messageElm.data("reply", sendDM);
 			if((entry.user || entry.sender).screen_name == columnInfo.account_name){
 				messageElm.data('delete', function(){
-					if(!confirm($I.R082({tweet:entry.text}))) return false;
+					if(!confirm($I.R082({tweet:entry.text ? entry.text : entry.full_text}))) return false;
 					var url = "twitter/api/"+columnInfo.account_name+"?path=direct_messages/destroy.json";
 					$.ajax({
 						type:"POST",
@@ -3615,7 +3616,7 @@ var twitter = {
 				});
 			}));
 		}
-		if((!opts || !opts.is_conversation) && (entry.in_reply_to_status_id || (entry.is_search && entry.text.indexOf('@')==0))){
+		if((!opts || !opts.is_conversation) && (entry.in_reply_to_status_id || (entry.is_search && (entry.text ? entry.text : entry.full_text).indexOf('@')==0))){
 			var convDiv = $('<a class="conversation" href="#"/>').text($I.R049).click(function(){
 				var loading = $('<p class="loading"/>').text("Loading...");
 				var popup = $('<div class="column twitter"/>')
@@ -3717,7 +3718,7 @@ var twitter = {
 	},
 	getNotificationInfo: function(entry, data, columnInfo){
 		var user = entry.user || entry.sender;
-		var unescaped_text = $('<span/>').html(entry.text).text();
+		var unescaped_text = $('<span/>').html(entry.text ? entry.text : entry.full_text).text();
 		return {
 			title: (user.screen_name+(user.name ? ' ('+user.name+')' : '')) + ' in ' + columnInfo.name,
 			message: unescaped_text,
