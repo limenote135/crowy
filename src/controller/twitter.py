@@ -60,6 +60,7 @@ class TwitterHandler(BaseHandler):
                     types = type.split("/", 1)
                     url = "https://api.twitter.com/1.1/search/tweets.json"
                     query["q"] = types[1]
+                    query["lang"] = "ja"
                 elif type.startswith("user/") :
                     types = type.split("/", 1)
                     url = "https://api.twitter.com/1.1/statuses/user_timeline.json"
