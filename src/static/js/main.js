@@ -3192,6 +3192,8 @@ var twitter = {
 
 		var imageDiv = $('<div class="images"/>');
 		messageElm.append(imageDiv);
+		var videoDiv = $('<div class="videos"/>');
+		messageElm.append(videoDiv);
 		
 		var displayText = "";
 		//parse entities
@@ -3219,10 +3221,11 @@ var twitter = {
 				if(this.text)
 					displayText += '<a href="http://twitter.com/#!/search/%23'+encodeURIComponent(this.text)+'" target="_blank" class="search-link">#'+this.text+'</a>';
 				if(this.media_url) {
-					if(lastIndex <= this.indices[0])
+					if(lastIndex <= this.indices[0]) {
 						displayText += '<a href="'+this.url+'" target="_blank">'+(this.display_url || this.url)+'</a>';
+					}
 				} else if(this.url) {
-					if(lastIndex <= this.indices[0])
+					if(lastIndex <= this.indices[0]) 
 						displayText += '<a href="'+this.url+'" target="_blank">'+(this.display_url || this.url)+'</a>';
 					getImageThumb((this.expanded_url || this.url), function(thumbData){
 						var thumb = $(thumbData.thumb).load(function(){
@@ -3551,20 +3554,39 @@ var twitter = {
 			else
 		 		media = entry.entities.media;
 			$.each(media, function(){
-				$('<a target="_blank"/>')
-					.attr("href", this.media_url)
-					.append($("<img/>")
-						.attr("src", this.media_url+":thumb")
-						.error(function(){
-							$(this).parent().remove();
-						})
+				if(this.type == "video") {
+					var playableVideos = this.video_info.variants.filter(
+						function(item, index) {
+							return item.content_type != "application/x-mpegURL";
+						}
 					)
-					.colorbox({
-						maxWidth:'100%',
-						maxHeight:'100%',
-						rel:imageGroupId
-					})
-					.appendTo(imageDiv);
+					$("<video/>")
+						.attr("controls", true)
+						.attr("poster", this.media_url)
+						.append($("<source/>")
+							.attr("src", playableVideos[0].url)
+							.attr("type", playableVideos[0].content_type)
+							.error(function(){
+								$(this).parent().remove();
+							})
+						)
+						.appendTo(videoDiv);
+				} else {
+					$('<a target="_blank"/>')
+						.attr("href", this.media_url)
+						.append($("<img/>")
+							.attr("src", this.media_url+":thumb")
+							.error(function(){
+								$(this).parent().remove();
+							})
+						)
+						.colorbox({
+							maxWidth:'100%',
+							maxHeight:'100%',
+							rel:imageGroupId
+						})
+						.appendTo(imageDiv);
+				}
 			});
 		}
 		if(entry.retweet_user){

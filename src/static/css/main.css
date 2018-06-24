@@ -1896,6 +1896,11 @@ li#account-name {
 .message .files, .message .images, .message .conversation, .message .rt-user{
 	margin-top:5px;
 }
+video { 
+   max-width:100%;
+   height:auto;
+   max-height:320px;
+}
 .message .rt-user{
 	display:block;
 	padding-left:18px;
